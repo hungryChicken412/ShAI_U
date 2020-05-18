@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -35,6 +35,7 @@ public class ShAI_U : MonoBehaviour {
 			} else {
 				lastDestination = currentDestination;
 				currentDestination = RandomNavSphere (transform.position, 7);
+				agent.SetDestination (currentDestination);
 			}
 
 		}
@@ -53,11 +54,11 @@ public class ShAI_U : MonoBehaviour {
 			} // YOU CAN ALSO GATHER INFORMATION ABOUT NEARBY FRIENDS OR NEURALS, BUT AS FOR NOW, I DON'T NEED IT.
 		}
 		nearbyEnemies = enemies;
-		AttackAccordingly (nearbyEnemies);
+		FindIdealEnemyToAttack (nearbyEnemies);
 
 	}
 
-	void AttackAccordingly(List<ShAI_U> enemies){
+	void FindIdealEnemyToAttack(List<ShAI_U> enemies){
 		
 		float closestDistance = 999;
 		int idealEnemyToAttack_Index = -1;
@@ -84,6 +85,7 @@ public class ShAI_U : MonoBehaviour {
 		agent.ResetPath ();
 		lastDestination = currentDestination;
 		currentDestination = RandomNavSphere (transform.position, 10);
+		agent.SetDestination (currentDestination);
 
 		enemyToAttack = enemy.transform;
 		Vector3 direction = enemyToAttack.position - transform.position;
