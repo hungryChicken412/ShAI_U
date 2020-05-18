@@ -4,7 +4,7 @@ Militant Shooter AI (Slightly Advanced) For Unity Alpha v0.46
  ## I'm Still Working On It
 
  > Before Starting, I'm a noob, so if you find any mistakes or anything odd in the code, kindly let me know, I'm still learning :)
-Infact this is my first repoositary.
+Infact this is my first repositary.
 
 
 This is a work in progress project, for designing a slightly advanced AI that can be used for any fps game.
