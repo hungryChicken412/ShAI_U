@@ -1,5 +1,5 @@
 # ShAI_U
-Militant Shooter AI (Slightly Advanced) For Unity Alpha v0.46
+Militant Shooter AI (Slightly Advanced) For Unity Alpha v0.76
 
  ## I'm Still Working On It
 
@@ -15,4 +15,6 @@ But if you want, you can use this script yourself, even right now, I've tried to
 ## Current Features:
  - Wanders Around according to a given array of points.
  - If Surrounded by multiple enemies, It will attack someone closest (Might add some more complexity later).
- - Aims At the enemy, and starts moving, to avoid any incomming bullets.
+ - While attacking the enemy, It looks for a suitable cover, and if found proceeds to it.
+ - A suitable cover is, which is near the friendly AIs and farther from Enemies, if their are no any other ai's left from it's faction, it will proceed to a cover which is more close to him than the enemy.
+ - A seperate gun script is created for the weapon which can also be used by the player.
