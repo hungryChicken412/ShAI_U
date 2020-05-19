@@ -18,3 +18,4 @@ But if you want, you can use this script yourself, even right now, I've tried to
  - While attacking the enemy, It looks for a suitable cover, and if found proceeds to it.
  - A suitable cover is, which is near the friendly AIs and farther from Enemies, if their are no any other ai's left from it's faction, it will proceed to a cover which is more close to him than the enemy.
  - A seperate gun script is created for the weapon which can also be used by the player.
+ - If the area is cleared, it will go back to it's patrolling.
