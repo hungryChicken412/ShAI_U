@@ -12,6 +12,7 @@ Everything is in one single script, as I want this to be easy to use and extreme
 Right now this rep. only contains this script, but in future I might add everything, so all one has to do is to import the prefab into the scene, adjust some variables
 accordingly, and VOILLA!
 But if you want, you can use this script yourself, even right now, I've tried to keep everything dynamic.
+Right now, the "Neutral" faction setting, doesn't work, might remove it later.
 ## Current Features:
  - Wanders Around according to a given array of points.
  - If Surrounded by multiple enemies, It will attack someone closest (Might add some more complexity later).
