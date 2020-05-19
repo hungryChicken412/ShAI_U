@@ -80,8 +80,6 @@ public class ShAI_U : MonoBehaviour {
 		if (nearbyEnemies.Count > 0)
 			FindIdealEnemyToAttack (nearbyEnemies);
 		else {
-			anim.SetBool ("Aim", attacking);
-			print ("No One LEft SiRe ! ! ! !");
 			attacking = false;
 		}
 
@@ -106,8 +104,7 @@ public class ShAI_U : MonoBehaviour {
 
 	void Attack(ShAI_U enemy){
 		attacking = true;
-		anim.SetBool ("Aim", attacking);
-		//anim.SetLayerWeight (1, 1);
+
 		enemyToAttack = enemy.transform;
 
 		gun.Shoot (enemyToAttack.position - transform.position);
@@ -139,8 +136,6 @@ public class ShAI_U : MonoBehaviour {
 			persuingCover = true;
 		}
 		//// FINDING IDEAL COVER SIDE ////
-
-
 
 	}
 
