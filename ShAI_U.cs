@@ -11,14 +11,23 @@ public class ShAI_U : MonoBehaviour {
 	[SerializeField] private NavMeshAgent agent;
 	[SerializeField] private bool aware;
 	[SerializeField] private Vector3[] patrolPoints;
+	[SerializeField] private Gun gun;
+	public float health;
 	public Faction factiton;
 	[SerializeField] private LayerMask overlapMask;
-	Vector3 lastDestination, currentDestination;
+	Vector3 lastDestination;
+	public Vector3 currentDestination;
 	bool standing;
+
 	[Header("Debug")]
-	[SerializeField] List<ShAI_U> nearbyEnemies;
+	[SerializeField] private List<ShAI_U> nearbyEnemies, nearbyFriends;
+	[SerializeField] private List<CoverObjects> nearbyCovers;
+
 	Transform enemyToAttack;
+	CoverObjects coverToPersue;
 	public bool attacking;
+	bool persuingCover;
+	bool inCover;
 	// Use this for initialization
 	void Start () {
 		WanderAround ();
@@ -26,16 +35,20 @@ public class ShAI_U : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		CheckHealth ();
 		AnimateMovement ();
 		LookOut ();
 		if (agent.remainingDistance <= agent.stoppingDistance) {
 			if (!attacking) {
 				standing = true;
+				inCover = false;
+				persuingCover = false;
 				StartCoroutine (StandStill ());
 			} else {
-				lastDestination = currentDestination;
-				currentDestination = RandomNavSphere (transform.position, 7);
-				agent.SetDestination (currentDestination);
+				if (persuingCover) {
+					inCover = true;
+				}
+
 			}
 
 		}
@@ -45,16 +58,33 @@ public class ShAI_U : MonoBehaviour {
 		List<ShAI_U> friendly = new List<ShAI_U> ();
 		List<ShAI_U> enemies = new List<ShAI_U> ();
 		List<ShAI_U> neutrals = new List<ShAI_U> ();
+		List<CoverObjects> covers = new List<CoverObjects> ();
 
 		Collider[] cols = Physics.OverlapSphere (transform.position, 7, overlapMask);
 		for (int i = 0; i < cols.Length; i++) {
-			ShAI_U ai = cols [i].GetComponent<ShAI_U> ();
-			if (ai.factiton != factiton && ai.factiton != Faction.neutral) {
-				enemies.Add (ai);
-			} // YOU CAN ALSO GATHER INFORMATION ABOUT NEARBY FRIENDS OR NEURALS, BUT AS FOR NOW, I DON'T NEED IT.
+			if (cols[i].gameObject.layer == 8){ // 8 == Soldier;
+				ShAI_U ai = cols [i].GetComponent<ShAI_U> ();
+				if (ai.factiton != factiton && ai.factiton != Faction.neutral) {
+					enemies.Add (ai);
+				} else if (ai.factiton == factiton){
+					friendly.Add (ai);
+				}// YOU CAN ALSO GATHER INFORMATION ABOUT NEARBY NEURALS, BUT AS FOR NOW, I DON'T NEED IT.
+			} else { // if it's not a soldier, it's a cover
+				covers.Add(cols[i].GetComponent<CoverObjects>()); // add that cover to the list;
+			}
 		}
+
 		nearbyEnemies = enemies;
-		FindIdealEnemyToAttack (nearbyEnemies);
+		nearbyCovers = covers;
+		nearbyFriends = friendly;
+		if (nearbyEnemies.Count > 0)
+			FindIdealEnemyToAttack (nearbyEnemies);
+		else {
+			anim.SetBool ("Aim", attacking);
+			print ("No One LEft SiRe ! ! ! !");
+			attacking = false;
+		}
+
 
 	}
 
@@ -63,45 +93,74 @@ public class ShAI_U : MonoBehaviour {
 		float closestDistance = 999;
 		int idealEnemyToAttack_Index = -1;
 		for (int i = 0; i < enemies.Count; i++) {
-			float enemyDistance = ApproxDistance (enemies [i].transform.position);
+			float enemyDistance = ApproxDistance (enemies [i].transform.position, transform.position);
 			if (enemyDistance < closestDistance) {
 				closestDistance = enemyDistance;
 				idealEnemyToAttack_Index = i;
 			}
 		}
-		if (enemies.Count > 0)
-			Attack (enemies [idealEnemyToAttack_Index]);
-		else
-			attacking = false;
+
+		Attack (enemies [idealEnemyToAttack_Index]);
+
 	}
 
 	void Attack(ShAI_U enemy){
 		attacking = true;
 		anim.SetBool ("Aim", attacking);
-		anim.SetLayerWeight (1, 1);
-
-		agent.enabled = true;
-		agent.Stop ();
-		agent.ResetPath ();
-		lastDestination = currentDestination;
-		currentDestination = RandomNavSphere (transform.position, 10);
-		agent.SetDestination (currentDestination);
-
+		//anim.SetLayerWeight (1, 1);
 		enemyToAttack = enemy.transform;
+
+		gun.Shoot (enemyToAttack.position - transform.position);
+		if (!inCover)
+			FindIdealCover();
+
 		Vector3 direction = enemyToAttack.position - transform.position;
 		direction.y = 0f;
 		transform.rotation = Quaternion.LookRotation (direction);
 	}
 
+	void FindIdealCover(){
 
-	private void OnAnimatorIK(int layerIndex)
-	{
-		if (attacking) {
-			anim.SetLookAtWeight (1, 1, 1, 1, 1);
-			anim.SetLookAtPosition (enemyToAttack.position);
+		int coverIndex = -1;
+		for (int i = 0; i < nearbyCovers.Count; i++) {
+			float coverDistanceFromMyFaction = AverageDistanceFromSquad (nearbyFriends, nearbyCovers [i]);
+			float coverDistanceFromEnemiesFaction = AverageDistanceFromSquad (nearbyEnemies, nearbyCovers [i]);
+			if (coverDistanceFromMyFaction < coverDistanceFromEnemiesFaction) {
+				coverIndex = i;
+				break;
+			}
 		}
 
+		if (coverIndex != -1) {
+			coverToPersue = nearbyCovers [coverIndex];
+			lastDestination = currentDestination;
+			currentDestination = coverToPersue.coverPosition.position;
+			agent.SetDestination (currentDestination);
+			persuingCover = true;
+		}
+		//// FINDING IDEAL COVER SIDE ////
+
+
+
 	}
+
+	float AverageDistanceFromSquad(List<ShAI_U> squad, CoverObjects cover){
+		List<float> distances = new List<float> ();
+
+		for (int i = 0; i < squad.Count; i++) {
+			distances.Add (ApproxDistance (squad [i].transform.position, cover.transform.position));
+		}
+		float averageDistance = 0;
+		for (int i = 0; i < distances.Count; i++) {
+			averageDistance += distances [i];
+		}
+		averageDistance /= distances.Count;
+
+		return averageDistance;
+
+	}
+
+
 
 	void AnimateMovement(){
 		float agentSpeed = agent.velocity.magnitude;
@@ -121,14 +180,17 @@ public class ShAI_U : MonoBehaviour {
 
 	}
 
-	float ApproxDistance(Vector3 pos){
-		Vector3 thisPos = transform.position;
+	public void RunForYourLife(){
+		this.enabled = false;
+	}
 
-		float distX = thisPos.x - pos.x;
+	float ApproxDistance(Vector3 pos1, Vector3 pos2){
+
+		float distX = pos2.x - pos1.x;
 		distX *= distX;
-		float distY = thisPos.y - pos.y;
+		float distY = pos2.y - pos1.y;
 		distY *= distY;
-		float distZ = thisPos.z - pos.z;
+		float distZ = pos2.z - pos1.z;
 		distZ *= distZ;
 		float approxDistance = distX + distY + distZ;
 
@@ -136,14 +198,25 @@ public class ShAI_U : MonoBehaviour {
 	
 	}
 
-	public static Vector3 RandomNavSphere(Vector3 origin, float dist) {
-		Vector3 randDirection = Random.insideUnitSphere * dist;
+	void CheckHealth(){
+		if (health <= 0) {
+			agent.enabled = false;
+			this.GetComponent<Collider> ().enabled = false;
+			anim.SetFloat ("WalkSpeed", 0);
+			anim.SetBool ("Die", true);
+			this.gameObject.layer = 0;
+			this.enabled = false;
 
-		randDirection += origin;
+		}
+	}
 
+	public Vector3 RandomNavSphere(Vector3 origin, float dist) {
 		NavMeshHit navHit;
 
+		Vector3 randDirection = Random.insideUnitSphere * dist;
+		randDirection += origin;
 		NavMesh.SamplePosition (randDirection, out navHit, dist, -1);
+		
 
 		return navHit.position;
 	}
@@ -162,5 +235,8 @@ public class ShAI_U : MonoBehaviour {
 		enemy,
 		enemy2,
 		neutral
+	}
+	public void ReloadToFalse(){
+		anim.SetBool ("Reload", false);
 	}
 }
