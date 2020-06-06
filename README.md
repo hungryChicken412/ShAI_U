@@ -22,6 +22,6 @@ So avoid setting it to that.
  - A seperate gun script is created for the weapon which can also be used by the player.
  - If the area is cleared, it will go back to it's patrolling.
  
- ## NOTE: The Animations are a very important part of this, I might provide everything later because right now (05/22/20), My exams are near and to be honest, I REALLY WANNA PASS :P
+ ## NOTE: The Animations are a very important part of this, I might provide everything later because right now (05/22/20), My exams are near and to be honest, I REALLY DON'T WANNA FAIL :P
 
 Other Than That, If you have any questions/concerns or advice or anything, let me know :)
