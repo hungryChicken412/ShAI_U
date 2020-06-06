@@ -1,5 +1,5 @@
 # ShAI_U
-Militant Shooter AI (Slightly Advanced) For Unity Alpha v1
+Militant Shooter AI (Slightly Advanced) For Unity  v1
 
  ## Version 1 Completed!
 
