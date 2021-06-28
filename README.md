@@ -6,6 +6,8 @@ Militant Shooter AI (Slightly Advanced) For Unity V1.0.1
  > Before Starting, I'm a noob, so if you find any mistakes or anything odd in the code, kindly let me know, I'm still learning :)
 Infact this is my first repositary.
 
+here is a video example: https://www.youtube.com/watch?v=InvAhSrRDHQ
+
 
 This is a work in progress project, for designing a slightly advanced AI that can be used for any fps game.
 Everything is in one single script, as I want this to be easy to use and dynamic. I hope I didn't make it confusing.
