@@ -1,5 +1,7 @@
 # ShAI_U
-Militant Shooter AI (Slightly Advanced) For Unity V1.0.1
+Militant Shooter AI (Slightly Advanced) For Unity V1.0.11
+![alttext](https://github.com/hungryChicken412/ShAI_U/blob/master/shooter.png?raw=true)
+
 
  ## Version 1 Completed!
 
